@@ -7,7 +7,7 @@ interface ProductCardProps {
 }
 
 const ProductCard = React.memo(({ tire }: ProductCardProps) => (
-  <div className="flex flex-col xl:flex-row items-center bg-white rounded-2xl shadow-md p-4 md:p-6 gap-4 md:gap-6 xl:gap-8 max-w-4xl w-full mx-auto">
+  <div data-testid="product" className="flex flex-col xl:flex-row items-center bg-white rounded-2xl shadow-md p-4 md:p-6 gap-4 md:gap-6 xl:gap-8 max-w-4xl w-full mx-auto">
     <div className="flex flex-col items-center w-full xl:w-auto min-w-[100px] md:min-w-[140px] xl:min-w-[180px]">
       <Image
         src={tire.image}

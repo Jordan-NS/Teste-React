@@ -4,12 +4,18 @@ import { useEffect, useState, useMemo } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/16/solid";
 import { Tire } from "../types/tire";
 import ProductCard from "./ProductCard";
-import { useDebounce } from "use-debounce";
+
+function normalize(str: string): string {
+  return str.normalize('NFD').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+}
+
+function containsAllWords(target: string, words: string[]): boolean {
+  return words.every(word => target.includes(word));
+}
 
 export default function Products() {
   const [tires, setTires] = useState<Tire[]>([]);
   const [query, setQuery] = useState<string>("");
-  const [debouncedQuery] = useDebounce(query, 300);
 
   useEffect(() => {
     const fetchTires = async () => {
@@ -22,14 +28,21 @@ export default function Products() {
   }, []);
 
   const filteredTires = useMemo(() => {
-    const q = debouncedQuery.toLowerCase();
-
-    return tires.filter(
-      (tire) => 
-        tire.name.toLowerCase().includes(q) || 
-        tire.cars.some((car) => car.toLowerCase().includes(q))
-    );
-  }, [debouncedQuery, tires]);
+    const nq = query
+      .split(' ')
+      .map(normalize)
+      .filter(Boolean);
+    return tires.filter((tire) => {
+      const nameNorm = normalize(tire.name);
+      const modelNorm = normalize(tire.model);
+      const carsNorm = tire.cars.map(normalize);
+      return (
+        containsAllWords(nameNorm, nq) ||
+        containsAllWords(modelNorm, nq) ||
+        carsNorm.some(car => containsAllWords(car, nq))
+      );
+    });
+  }, [query, tires]);
 
   return (
     <div className="w-full flex justify-center flex-col h-full px-2 sm:px-0">
